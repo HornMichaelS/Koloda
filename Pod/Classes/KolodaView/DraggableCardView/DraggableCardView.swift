@@ -67,12 +67,7 @@ public class DraggableCardView: UIView, UIGestureRecognizerDelegate {
     private var tapGestureRecognizer: UITapGestureRecognizer!
     private var animationDirectionY: CGFloat = 1.0
     private var dragDistance = CGPoint.zero
-    
-    private var swipePercentageMargin: CGFloat {
-        let percentage = delegate?.card(cardSwipeThresholdRatioMargin: self) ?? 0.0
-        
-        return percentage != 0.0 ? percentage : 1.0
-    }
+    private var swipePercentageMargin: CGFloat = 0.0
 
     
     //MARK: Lifecycle
@@ -89,6 +84,16 @@ public class DraggableCardView: UIView, UIGestureRecognizerDelegate {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
+    }
+    
+    override public var frame: CGRect {
+        didSet {
+            if let ratio = delegate?.card(cardSwipeThresholdRatioMargin: self) , ratio != 0 {
+                swipePercentageMargin = ratio
+            } else {
+                swipePercentageMargin = 1.0
+            }
+        }
     }
     
     deinit {
@@ -459,7 +464,7 @@ public class DraggableCardView: UIView, UIGestureRecognizerDelegate {
             overlayView?.overlayState = direction
             let overlayAlphaAnimation = POPBasicAnimation(propertyNamed: kPOPViewAlpha)
             overlayAlphaAnimation?.toValue = 1.0
-            overlayAlphaAnimation?.duration = cardSwipeActionAnimationDuration
+            overlayAlphaAnimation?.duration = cardSwipeActionAnimationDuration / 5
             overlayView?.pop_add(overlayAlphaAnimation, forKey: "swipeOverlayAnimation")
         }
     }
